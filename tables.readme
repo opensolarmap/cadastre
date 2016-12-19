@@ -1,0 +1,10 @@
+buildings : Import from OpenStreetMap, plus proba from table probas
+probas : Import from classifier
+commune_geom : import from OpenStreetMap (data.gouv.fr)
+commune_stats : aggregation from table buildings
+commune_merge : merging of tables commune_geom and commune_stats
+departement_geom : import from OpenStreetMap (data.gouv.fr)
+departement_stats : aggregation from table commune_merge
+departement_merge : merging of tables departement_geom and departement_stats
+
+

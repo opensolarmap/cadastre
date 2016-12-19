@@ -1,0 +1,7 @@
+*.csv
+*.geojson
+*.bz2
+.ipynb_checkpoints
+*~
+geo_shapes
+

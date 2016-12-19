@@ -1,0 +1,72 @@
+Setup :
+(shell) sudo -i -u postgres
+(shell) createuser --interactive
+(shell) createdb solar
+(shell) nano /etc/postgresql/9.3/main/pg_hba
+(shell) service postgresql reload
+grant all privileges on database solar to solar;
+alter user solar with password '***';
+create extension postgis;
+
+Misc :
+\?
+\! ls
+\d buildings
+select * from buildings limit 5;
+\timing
+
+Import :
+create table buildings (commune char(5), id_osm bigint, geojson text)
+\copy buildings from fichier.csv with (format csv);
+alter table buildings add geom geometry;
+update buildings set geom = st_setsrid(st_geomfromgeojson(geojson),4326);
+create index buildings_geom on buildings using gist(geom);
+alter table buildings add merc geometry;
+update buildings set merc = st_transform(st_setsrid(st_geomfromgeojson(geojson),4326),3857);
+
+Requests :
+select st_astext(geom) from buildings limit 5;
+select st_astext(merc) from buildings limit 5;
+select st_srid(merc) from buildings limit 5;
+select st_asewkt(merc) from buildings limit 5;
+select st_asgeojson(merc) from buildings limit 5;
+select id_osm from buildings where st_dwithin(geom, st_setsrid(st_makepoint(2.35,48.8),4326), 0.01);
+select id_osm, st_area(geom) from buildings where st_dwithin(geom, st_setsrid(st_makepoint(2.35,48.8),4326), 0.01);
+select id_osm, st_area(geom::geography) from buildings where st_dwithin(geom, st_setsrid(st_makepoint(2.35,48.8),4326), 0.01);
+select sum(st_area(geom::geography)), count(*) as nb from buildings where commune='75101';
+select sum(st_area(geom::geography)), count(*) as nb from buildings where commune='75056';
+select sum(st_area(geom::geography)), count(*) as nb from buildings where commune='94068';
+select sum(st_area(geom::geography)), count(*) as nb from buildings where commune='89304';
+select commune, sum(st_area(geom::geography)), count(*) as nb from buildings where commune like '89%' group by 1;
+
+update buildings set class_0 = probas.class_0 from probas where buildings.id_osm = probas.id_osm;
+delete from buildings where exists (select 1 from buildings t2 where t2.id_osm = buildings.id_osm and t2.ctid > buildings.ctid);
+update buildings set class_0 = probas.class_0, class_1 = probas.class_1, class_2 = probas.class_2, class_3 = probas.class_3 from probas where buildings.id_osm = probas.id_osm;
+
+
+select id_osm from buildings where merc && st_makeenvelope(260000, 6230000, 270000, 6240000, 4326);
+
+select commune, sum(class_0) as class_0_sum, sum(class_1) as class_1_sum, sum(class_2) as class_2_sum, sum(class_3) as class_3_sum into commune_stats from buildings group by commune;
+
+
+shp2pgsql -c -s 4326 geo_shapes/communes-20150101-100m.shp commune_geom > geo_shapes/import_commune_geom.sql
+psql -f geo_shapes/import_commune_geom.sql solar solar
+
+select coalesce(commune, insee) as commune, class_0_sum, class_1_sum, class_2_sum, class_3_sum, total, nom, wikipedia, surf_m2, geom into commune_merge from commune_stats full outer join commune_geom on (commune = insee);
+
+create index commune_geom_index on commune_geom using gist(geom);
+
+shp2pgsql -c -s 4326 -W LATIN1 geo_shapes/departements-20140306-100m.shp departement_geom > geo_shapes/import_departement_geom.sql
+
+
+update commune_merge set departement = case when left(commune, 2) = '97' then left(commune, 3) else left(commune, 2) end;
+alter table commune_merge add departement varchar(3);
+select departement, sum(class_0_sum) as class_0_sum, sum(class_1_sum) as class_1_sum, sum(class_2_sum) as class_2_sum, sum(class_3_sum) as class_3_sum into departement_stats from commune_merge group by departement;
+alter table departement_stats add total real;
+update departement_stats set total = class_0_sum + class_1_sum + class_2_sum + class_3_sum;
+
+select coalesce(departement, code_insee) as departement, class_0_sum, class_1_sum, class_2_sum, class_3_sum, total, nom, nuts3, wikipedia, geom into departement_merge from departement_stats full outer join departement_geom on (departement = code_insee);
+create index departement_geom_index on departement_geom using gist(geom);
+
+
+
