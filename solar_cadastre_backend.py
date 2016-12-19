@@ -216,11 +216,11 @@ vector_roofs = VectorRoofs()
 commune_stats = CommuneStats()
 departement_stats = DepartementStats()
 
-application.add_route('/vector_roofs', vector_roofs)
-application.add_route('/commune_stats', commune_stats)
-application.add_route('/departement_stats', departement_stats)
+application.add_route('/data/vector_roofs', vector_roofs)
+application.add_route('/data/commune_stats', commune_stats)
+application.add_route('/data/departement_stats', departement_stats)
 
-# example : http://localhost:9090/vector_roofs?x_min=2.33834981918335&x_max=2.3512244224548344&y_min=48.84692582192718&y_max=48.85257378928073
-# example : http://localhost:9090/commune_stats?x_min=2.35&x_max=2.65&y_min=48.85&y_max=48.95
-# example : http://localhost:9090/departement_stats
+# example : http://localhost:9090/data/vector_roofs?x_min=2.33834981918335&x_max=2.3512244224548344&y_min=48.84692582192718&y_max=48.85257378928073
+# example : http://localhost:9090/data/commune_stats?x_min=2.35&x_max=2.65&y_min=48.85&y_max=48.95
+# example : http://localhost:9090/data/departement_stats
 

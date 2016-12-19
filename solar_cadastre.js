@@ -2,7 +2,7 @@
 // config
 
 token = 'pk.eyJ1Ijoib3BlbnN0cmVldG1hcCIsImEiOiJncjlmd0t3In0.DmZsIeOW-3x-C5eX-wAqTw'
-backend_server = 'http://localhost:9090'
+backend_root = 'http://localhost:9090/data/'
 
 
 // map and base maps
@@ -299,7 +299,7 @@ function gotDepartements(error, departements) {
     displayDepartements();
 }
 
-d3.json(backend_server + '/departement_stats', gotDepartements)
+d3.json(backend_root + 'departement_stats', gotDepartements)
 
 
 // zoom behavior
@@ -331,10 +331,10 @@ function mapChanged(e) {
         south = bounds.getSouth();
 
         if (zoom_level >= 15) {
-            url = backend_server + '/vector_roofs?x_min=' + west + '&x_max=' + east + '&y_min=' + south + '&y_max=' + north
+            url = backend_root + 'vector_roofs?x_min=' + west + '&x_max=' + east + '&y_min=' + south + '&y_max=' + north
             callback = gotBuildings
         } else {
-            url = backend_server + '/commune_stats?x_min=' + west + '&x_max=' + east + '&y_min=' + south + '&y_max=' + north
+            url = backend_root + 'commune_stats?x_min=' + west + '&x_max=' + east + '&y_min=' + south + '&y_max=' + north
             callback = gotCommunes
         }
 
