@@ -2,7 +2,7 @@
 // config
 
 token = 'pk.eyJ1Ijoib3BlbnN0cmVldG1hcCIsImEiOiJncjlmd0t3In0.DmZsIeOW-3x-C5eX-wAqTw'
-backend_root = 'http://localhost:9090/data/'
+backend_root = 'http://cadastre.opensolarmap.org/data/'
 
 
 // map and base maps
