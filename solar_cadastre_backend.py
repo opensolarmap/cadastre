@@ -7,6 +7,13 @@ import postgis
 import json
 import numpy as np
 import os
+import configparser
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+database = config['DEFAULT']['database']
+database_user = config['DEFAULT']['database_user']
+database_password = config['DEFAULT']['database_password']
 
 departement_stats_filename = 'departement_stats.geojson'
 
@@ -42,7 +49,7 @@ class VectorRoofs(object):
         y_gap_max = 0.1
         x_min, x_max, y_min, y_max = limit_range(x_min, x_max, y_min, y_max, x_gap_max, y_gap_max)
 
-        connection = psycopg2.connect(dbname='solar', user='solar', password='baba')
+        connection = psycopg2.connect(dbname=database, user=database_user, password=database_password)
         cursor = connection.cursor()
         postgis.register(cursor)
 
@@ -108,7 +115,7 @@ class CommuneStats(object):
         y_gap_max = 0.5
         x_min, x_max, y_min, y_max = limit_range(x_min, x_max, y_min, y_max, x_gap_max, y_gap_max)
 
-        connection = psycopg2.connect(dbname='solar', user='solar', password='baba')
+        connection = psycopg2.connect(dbname=database, user=database_user, password=database_password)
         cursor = connection.cursor()
         postgis.register(cursor)
 
@@ -152,7 +159,7 @@ class CommuneStats(object):
 class DepartementStats(object):
     def on_get(self, req, resp):
         if not os.path.isfile(departement_stats_filename):
-            connection = psycopg2.connect(dbname='solar', user='solar', password='baba')
+            connection = psycopg2.connect(dbname=database, user=database_user, password=database_password)
             cursor = connection.cursor()
             postgis.register(cursor)
 

@@ -1,0 +1,4 @@
+[DEFAULT]
+database = solar
+database_user = solar
+database_password = "***"
